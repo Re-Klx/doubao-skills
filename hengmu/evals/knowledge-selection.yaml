@@ -1,0 +1,177 @@
+schema_version: "1.0"
+cases:
+  - id: react-fastapi-postgresql
+    skill: project-architecture-audit
+    facts: [react, vite, fastapi, postgresql]
+    task: Review frontend, API, and relational data ownership.
+    must_include:
+      - technology.react
+      - technology.vite
+      - technology.fastapi
+      - technology.postgresql
+      - domain.web-frontend
+      - domain.backend-api
+    must_exclude:
+      - technology.kubernetes
+      - technology.apache-kafka
+      - domain.mobile
+  - id: explicit-negative-scope
+    skill: project-architecture-audit
+    facts: [react, fastapi, postgresql]
+    task: Review this system without Kafka, Kubernetes, Event Sourcing, iOS, or multi-agent design.
+    must_exclude:
+      - technology.apache-kafka
+      - technology.kubernetes
+      - pattern.cqrs-event-sourcing
+      - domain.mobile
+      - decision.single-agent-vs-multi-agent
+  - id: ai-agent-lens
+    skill: ai-agent-architecture-audit
+    facts: [openai-agents-sdk, postgresql]
+    task: Review tool authority, memory, recovery, and human approval.
+    must_include:
+      - domain.ai-agent
+      - decision.workflow-vs-agent
+      - decision.single-agent-vs-multi-agent
+  - id: mobile-lens
+    skill: mobile-architecture-audit
+    facts: [swift, sqlite]
+    task: Review offline edits, synchronization, migrations, and notifications.
+    must_include:
+      - domain.mobile
+      - decision.local-first-vs-server-first
+      - technology.sqlite
+  - id: context-budget
+    skill: architecture-solution-advisor
+    facts: [fastapi, postgresql]
+    task: Compare a bounded API architecture decision.
+    maximum_entries: 12
+    requirements:
+      - all required Skill foundations remain selected
+      - every omitted entry records an exclusion reason
+      - selected entries record kind and maturity
+      - per-kind selected counts do not exceed their configured limits
+  - id: benchmark-fixture-does-not-route-mobile
+    skill: project-architecture-audit
+    facts: [swift]
+    fact_roles: [benchmark-fixture]
+    task: Review the repository architecture.
+    must_exclude:
+      - domain.mobile
+    requirements:
+      - benchmark fixture evidence remains observable in repository facts
+      - benchmark fixture evidence does not infer a mobile project domain
+  - id: mixed-production-and-fixture-swift-routes-mobile
+    skill: project-architecture-audit
+    facts: [swift]
+    fact_roles: [production, benchmark-fixture]
+    task: Review the repository architecture.
+    must_include:
+      - domain.mobile
+    requirements:
+      - production evidence contributes even when the same fact also has fixture evidence
+  - id: solution-advisor-golden-default
+    skill: architecture-solution-advisor
+    facts: [react, fastapi]
+    fact_roles: [production]
+    task: Compare React and FastAPI architecture options.
+    must_include:
+      - technology.fastapi
+      - technology.react
+    requirements:
+      - discretionary automatic Golden entries require no exception
+      - non-Golden entries retain standard maturity and an auditable exception
+      - mandatory Skill dependencies are never silently dropped by a kind budget
+  - id: plugin-runtime-intent-disambiguates-local-first
+    skill: architecture-solution-advisor
+    facts: []
+    fact_roles: []
+    decision_intents: [plugin-runtime-topology]
+    task: Preserve a local-first plugin runtime without adding a hosted service.
+    must_include:
+      - domain.plugin-platform
+      - style.plugin-architecture
+    must_exclude:
+      - decision.local-first-vs-server-first
+      - decision.optimistic-vs-pessimistic-update
+      - decision.state-management
+    requirements:
+      - exact decision-intent matches remain eligible when the most relevant entry is Standard
+      - ambiguous local-first wording does not activate client data-authority guidance
+  - id: open-greenfield-target-architecture
+    skill: architecture-solution-advisor
+    facts: [react, fastapi, postgresql]
+    fact_roles: [production]
+    task: Design an open Greenfield target architecture with runtime units, deployment units, data ownership, interfaces, trust boundaries, critical flows, operations, and measurable quality scenarios.
+    must_include:
+      - domain.web-frontend
+      - domain.backend-api
+    requirements:
+      - the selection remains decision-specific and binds the target architecture reasoning
+      - Knowledge capability claims do not become repository facts
+  - id: constrained-design-preserves-constraint-evidence
+    skill: architecture-solution-advisor
+    facts: [postgresql, kubernetes]
+    fact_roles: [production]
+    task: Specify a constrained architecture with required data residency, preferred managed operations, and prohibited shared database writes.
+    must_include:
+      - domain.backend-api
+    requirements:
+      - required constraints are challenged before selection
+      - preferred constraints may lose with a recorded trade-off
+      - prohibited options are hard-eliminated
+      - a technology-evolution entry is not selected merely because the task says constrained
+      - no version pin is inferred from memory
+  - id: mcp-protocol-boundary
+    skill: project-architecture-audit
+    facts: []
+    task: Review the mcp protocol boundary, authorization, and untrusted annotations.
+    must_include:
+      - technology.model-context-protocol
+    must_exclude:
+      - technology.a2a-protocol
+    requirements:
+      - selection binds the 2026-07-28 revision without treating MCP as authorization authority
+  - id: a2a-task-handoff
+    skill: project-architecture-audit
+    facts: []
+    task: Review the a2a task handoff, cancellation, retries, and ownership.
+    must_include:
+      - technology.a2a-protocol
+    must_exclude:
+      - technology.model-context-protocol
+    requirements:
+      - selection does not infer production fitness from announcement wording
+  - id: agent-skills-package-contract
+    skill: project-architecture-audit
+    facts: []
+    task: Review skill.md, progressive-disclosure, and allowed-tools boundaries.
+    must_include:
+      - technology.agent-skills
+    requirements:
+      - experimental allowed-tools metadata is not treated as sandbox or authorization enforcement
+  - id: opentelemetry-genai-sensitive-content
+    skill: project-architecture-audit
+    facts: []
+    task: Review genai semantic-convention fields and sensitive content collection.
+    must_include:
+      - technology.opentelemetry-genai
+    requirements:
+      - selection retains development maturity and explicit sensitive-content opt-in
+  - id: agent-evaluation-identity
+    skill: project-architecture-audit
+    facts: []
+    task: Review agent-evaluation design and bind repeated outcomes to the complete harness identity.
+    must_include:
+      - decision.agent-evaluation-design
+    requirements:
+      - no model-quality claim transfers beyond the evaluated model surface harness prompt fixture policy scorer runtime and hashes
+  - id: secure-agent-tool-runtime
+    skill: project-architecture-audit
+    facts: []
+    task: Review tool-sandbox and complete-mediation for model-proposed side effects.
+    must_include:
+      - reference.secure-agent-tool-runtime
+    requirements:
+      - the model never becomes authorization authority
+      - the reference makes no completeness certification or compliance claim

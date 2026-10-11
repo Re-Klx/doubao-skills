@@ -1,0 +1,330 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.architecture/schemas/gate-policy.schema.json",
+  "title": "Architecture quality gate policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "review_kinds", "block", "waivers"],
+  "properties": {
+    "schema_version": {
+      "enum": ["1.0", "1.1", "1.2"]
+    },
+    "review_kinds": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": ["project", "ai-agent", "mobile", "portfolio"]
+      }
+    },
+    "block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "severities",
+        "statuses",
+        "minimum_confidence",
+        "max_review_age_days",
+        "require_current_commit",
+        "unverified_behavior"
+      ],
+      "properties": {
+        "severities": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": ["critical", "high", "medium", "low", "info"]
+          }
+        },
+        "statuses": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": ["open", "planned", "in-progress", "resolved", "accepted-risk", "rejected"]
+          }
+        },
+        "minimum_confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "max_review_age_days": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "require_current_commit": {
+          "type": "boolean"
+        },
+        "unverified_behavior": {
+          "enum": ["ignore", "warn", "fail"]
+        },
+        "minimum_verification_level": {
+          "enum": ["V0", "V1", "V2", "V3", "V4", "V5"]
+        },
+        "verification_levels": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["by_severity", "accepted_risk", "release"],
+          "properties": {
+            "by_severity": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["critical", "high", "medium", "low", "info"],
+              "properties": {
+                "critical": {"enum": ["V0", "V1", "V2", "V3", "V4", "V5"]},
+                "high": {"enum": ["V0", "V1", "V2", "V3", "V4", "V5"]},
+                "medium": {"enum": ["V0", "V1", "V2", "V3", "V4", "V5"]},
+                "low": {"enum": ["V0", "V1", "V2", "V3", "V4", "V5"]},
+                "info": {"enum": ["V0", "V1", "V2", "V3", "V4", "V5"]}
+              }
+            },
+            "accepted_risk": {
+              "enum": ["V0", "V1", "V2", "V3", "V4", "V5"]
+            },
+            "release": {
+              "enum": ["V0", "V1", "V2", "V3", "V4", "V5"]
+            }
+          }
+        },
+        "freshness_strategy": {
+          "enum": ["time-window", "exact-commit", "ancestor", "diff-aware"]
+        },
+        "require_clean_tree": {
+          "type": "boolean"
+        },
+        "require_evidence_resolution": {
+          "type": "boolean"
+        }
+      }
+    },
+    "waivers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["finding_id", "reason", "owner", "expires_on"],
+        "properties": {
+          "finding_id": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9._-]{2,63}$"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 3
+          },
+          "finding_fingerprint": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "owner": {
+            "type": "string",
+            "minLength": 1
+          },
+          "expires_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "approved_by": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "risk_acceptances_file": {
+      "type": "string",
+      "minLength": 1
+    },
+    "product_mode": {
+      "enum": ["advisory", "governed", "enforced"]
+    },
+    "roles": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["auditors", "verifiers", "decision_makers", "risk_acceptors", "policy_owners", "maintainers"],
+      "properties": {
+        "auditors": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+        "verifiers": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+        "decision_makers": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+        "risk_acceptors": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+        "policy_owners": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+        "maintainers": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}}
+      }
+    },
+    "role_separation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["separate"],
+      "properties": {
+        "separate": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["left", "right"],
+            "properties": {
+              "left": {
+                "enum": ["auditors", "verifiers", "decision_makers", "risk_acceptors", "policy_owners", "maintainers"]
+              },
+              "right": {
+                "enum": ["auditors", "verifiers", "decision_makers", "risk_acceptors", "policy_owners", "maintainers"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "stages": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contract", "finding", "change", "release"],
+      "properties": {
+        "contract": {"type": "boolean"},
+        "finding": {"type": "boolean"},
+        "change": {"type": "boolean"},
+        "release": {"type": "boolean"}
+      }
+    },
+    "release_requirements": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "required_review_kinds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"enum": ["project", "ai-agent", "mobile", "portfolio"]}
+        },
+        "required_evidence_types": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "source",
+              "config",
+              "schema",
+              "migration",
+              "test",
+              "runtime",
+              "history",
+              "document",
+              "tool",
+              "static",
+              "contract",
+              "security",
+              "supply-chain"
+            ]
+          }
+        },
+        "required_provider_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]*$"
+          }
+        },
+        "require_accepted_decisions": {"type": "boolean"},
+        "require_completed_plans": {"type": "boolean"},
+        "require_no_dirty_tree": {"type": "boolean"}
+      }
+    },
+    "change_requirements": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "critical_paths",
+        "public_contract_paths",
+        "migration_paths",
+        "security_paths",
+        "require_fresh_review_on_critical_change",
+        "require_decision_on_public_contract_change",
+        "require_plan_on_migration_change"
+      ],
+      "properties": {
+        "critical_paths": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "public_contract_paths": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "migration_paths": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "security_paths": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "require_fresh_review_on_critical_change": {"type": "boolean"},
+        "require_decision_on_public_contract_change": {"type": "boolean"},
+        "require_plan_on_migration_change": {"type": "boolean"}
+      }
+    },
+    "artifact_signatures": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["allowed_signers_file", "namespace"],
+      "properties": {
+        "allowed_signers_file": {"type": "string", "minLength": 1},
+        "namespace": {"type": "string", "minLength": 1}
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "schema_version": {"enum": ["1.1", "1.2"]}
+        }
+      },
+      "then": {
+        "required": [
+          "risk_acceptances_file",
+          "roles",
+          "role_separation",
+          "stages",
+          "release_requirements",
+          "change_requirements"
+        ],
+        "properties": {
+          "block": {
+            "required": [
+              "minimum_verification_level",
+              "freshness_strategy",
+              "require_clean_tree",
+              "require_evidence_resolution"
+            ]
+          },
+          "waivers": {
+            "items": {
+              "required": [
+                "finding_fingerprint",
+                "approved_by"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "schema_version": {"const": "1.2"}
+        },
+        "required": ["schema_version"]
+      },
+      "then": {
+        "required": ["product_mode"]
+      }
+    }
+  ]
+}

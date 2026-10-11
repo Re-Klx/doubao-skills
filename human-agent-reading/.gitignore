@@ -1,0 +1,10 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+.obsidian/
+*.mp3
+*.m4a
+*.wav
+*.flac
+private/

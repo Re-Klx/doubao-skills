@@ -1,0 +1,4 @@
+interface:
+  display_name: "Hengmu"
+  short_description: "Architecture assessment, design, decisions, plans, and gates"
+  default_prompt: "Use $hengmu to route an evidence-bound architecture workflow; never accept decisions, edit application code, or run gates implicitly."

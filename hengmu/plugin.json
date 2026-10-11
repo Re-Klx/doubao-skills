@@ -1,0 +1,25 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "author": {
+    "name": "Qingye Open Source",
+    "url": "https://github.com/qingye-lab"
+  },
+  "description": "Evidence-bound architecture review and target design across compatible agent clients, with a local CPython 3.11–3.14 runtime and deterministic quality gates.",
+  "homepage": "https://qingye-lab.github.io/hengmu/",
+  "keywords": [
+    "agent-plugins",
+    "agent-skills",
+    "architecture",
+    "architecture-governance",
+    "architecture-review",
+    "codex",
+    "cursor",
+    "developer-tools",
+    "governance",
+    "quality-gate"
+  ],
+  "license": "MIT",
+  "name": "hengmu",
+  "repository": "https://github.com/qingye-lab/hengmu",
+  "version": "1.2.1"
+}

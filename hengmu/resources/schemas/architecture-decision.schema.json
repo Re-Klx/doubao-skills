@@ -1,0 +1,1308 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.architecture/schemas/architecture-decision.schema.json",
+  "title": "Architecture solution decision",
+  "$defs": {
+    "constraintAssessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["constraint_id", "status", "rationale"],
+      "properties": {
+        "constraint_id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9._-]{2,63}$"
+        },
+        "status": {
+          "enum": ["satisfied", "violated", "unknown", "not-applicable"]
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 8
+        },
+        "knowledge_id": {
+          "type": "string",
+          "minLength": 3
+        },
+        "target_refs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]*$"
+          }
+        }
+      }
+    },
+    "runtimeUnit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "responsibility",
+        "owner",
+        "deployment_unit",
+        "technologies"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "responsibility": {
+          "type": "string",
+          "minLength": 8
+        },
+        "owner": {
+          "type": "string",
+          "minLength": 3
+        },
+        "deployment_unit": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "technologies": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^technology\\.[a-z0-9][a-z0-9._-]*$"
+          }
+        }
+      }
+    },
+    "deploymentUnit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "environment",
+        "owner",
+        "rollout",
+        "mixed_version",
+        "on_call"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "environment": {
+          "type": "string",
+          "minLength": 3
+        },
+        "owner": {
+          "type": "string",
+          "minLength": 3
+        },
+        "rollout": {
+          "type": "string",
+          "minLength": 8
+        },
+        "mixed_version": {
+          "type": "string",
+          "minLength": 8
+        },
+        "on_call": {
+          "type": "string",
+          "minLength": 3
+        }
+      }
+    },
+    "dataOwnership": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "data",
+        "owner",
+        "store",
+        "lifecycle",
+        "consistency",
+        "recovery"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "data": {
+          "type": "string",
+          "minLength": 3
+        },
+        "owner": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "store": {
+          "type": "string",
+          "minLength": 3
+        },
+        "lifecycle": {
+          "type": "string",
+          "minLength": 8
+        },
+        "consistency": {
+          "type": "string",
+          "minLength": 8
+        },
+        "recovery": {
+          "type": "string",
+          "minLength": 8
+        }
+      }
+    },
+    "externalSystem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "owner", "trust_boundary"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 3
+        },
+        "owner": {
+          "type": "string",
+          "minLength": 3
+        },
+        "trust_boundary": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        }
+      }
+    },
+    "architectureInterface": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "from",
+        "to",
+        "contract",
+        "mode",
+        "compatibility",
+        "evolution"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "from": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "to": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "contract": {
+          "type": "string",
+          "minLength": 3
+        },
+        "mode": {
+          "enum": ["sync", "async", "batch", "file"]
+        },
+        "compatibility": {
+          "type": "string",
+          "minLength": 8
+        },
+        "evolution": {
+          "type": "string",
+          "minLength": 8
+        }
+      }
+    },
+    "trustBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "description",
+        "runtime_units",
+        "identities",
+        "permissions",
+        "secrets",
+        "untrusted_inputs",
+        "controls"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 8
+        },
+        "runtime_units": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]*$"
+          }
+        },
+        "identities": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 3}
+        },
+        "permissions": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 3}
+        },
+        "secrets": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 3}
+        },
+        "untrusted_inputs": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 3}
+        },
+        "controls": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 3}
+        }
+      }
+    },
+    "criticalFlowBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "flow_id",
+        "runtime_units",
+        "failure_outcome",
+        "recovery",
+        "measure"
+      ],
+      "properties": {
+        "flow_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "runtime_units": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]*$"
+          }
+        },
+        "failure_outcome": {
+          "type": "string",
+          "minLength": 8
+        },
+        "recovery": {
+          "type": "string",
+          "minLength": 8
+        },
+        "measure": {
+          "type": "string",
+          "minLength": 8
+        }
+      }
+    },
+    "targetArchitecture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "option_id",
+        "runtime_units",
+        "deployment_units",
+        "data_ownership",
+        "interfaces",
+        "external_systems",
+        "trust_boundaries",
+        "critical_flow_bindings",
+        "operational_model"
+      ],
+      "properties": {
+        "option_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "runtime_units": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/runtimeUnit"
+          }
+        },
+        "deployment_units": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/deploymentUnit"
+          }
+        },
+        "data_ownership": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/dataOwnership"
+          }
+        },
+        "interfaces": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/architectureInterface"
+          }
+        },
+        "external_systems": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/externalSystem"
+          }
+        },
+        "trust_boundaries": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/trustBoundary"
+          }
+        },
+        "critical_flow_bindings": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/criticalFlowBinding"
+          }
+        },
+        "operational_model": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "deployment",
+            "observability",
+            "recovery",
+            "capacity",
+            "backup_restore",
+            "on_call",
+            "incident_controls"
+          ],
+          "properties": {
+            "deployment": {
+              "type": "string",
+              "minLength": 8
+            },
+            "observability": {
+              "type": "string",
+              "minLength": 8
+            },
+            "recovery": {
+              "type": "string",
+              "minLength": 8
+            },
+            "capacity": {
+              "type": "string",
+              "minLength": 8
+            },
+            "backup_restore": {
+              "type": "string",
+              "minLength": 8
+            },
+            "on_call": {
+              "type": "string",
+              "minLength": 3
+            },
+            "incident_controls": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 3
+              }
+            }
+          }
+        }
+      }
+    },
+    "fileEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "description"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "description": {"type": "string", "minLength": 8}
+      }
+    },
+    "measurement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["metric", "value", "method", "evidence"],
+      "properties": {
+        "metric": {"type": "string", "minLength": 3},
+        "value": {"type": "string", "minLength": 1},
+        "method": {"type": "string", "minLength": 8},
+        "evidence": {"$ref": "#/$defs/fileEvidence"}
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "decision", "problem", "knowledge_snapshot", "options", "selected_option", "rationale", "revisit_triggers"],
+  "properties": {
+    "schema_version": {
+      "enum": ["1.1", "1.2", "1.3", "1.4"]
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "decided_at", "decision_makers", "status"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9._-]{2,63}$"
+        },
+        "source_review": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_review_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "decision_kind": {
+          "enum": ["remediation", "greenfield"]
+        },
+        "assessment_kind": {
+          "enum": ["standard", "technology-evolution"]
+        },
+        "architecture_intent": {
+          "enum": ["option-decision", "target-architecture"]
+        },
+        "source_context": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_context_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "decided_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "decision_makers": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "status": {
+          "enum": ["proposed", "accepted", "rejected", "superseded"]
+        },
+        "supersedes": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9._-]{2,63}$"
+        },
+        "knowledge_selection_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "knowledge_selection_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "problem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["quality_attributes", "constraints", "finding_ids", "assumptions"],
+      "properties": {
+        "quality_attributes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "constraints": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "finding_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9._-]{2,63}$"
+          }
+        },
+        "assumptions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "known_facts": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        },
+        "unknowns": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        }
+      }
+    },
+    "knowledge_snapshot": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "catalog_version", "sha256"],
+            "properties": {
+              "kind": {
+                "enum": ["architecture-style", "pattern", "technology-profile"]
+              },
+              "catalog_version": {
+                "type": "string",
+                "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "version", "sha256"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 3
+              },
+              "version": {
+                "type": "string",
+                "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "options": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "title",
+          "complexity_tier",
+          "architecture_styles",
+          "patterns",
+          "technologies",
+          "benefits",
+          "liabilities",
+          "assumptions",
+          "quality_attribute_effects",
+          "business_fit",
+          "team_fit",
+          "evolution_fit",
+          "implementation_complexity",
+          "operational_complexity",
+          "migration_risk",
+          "reversibility",
+          "cost",
+          "technical_maturity",
+          "lock_in",
+          "tradeoff_scores",
+          "rejected_reasons"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]*$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 3
+          },
+          "complexity_tier": {
+            "enum": ["keep-current", "low", "medium", "high"]
+          },
+          "architecture_styles": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {"type": "string"}
+          },
+          "patterns": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {"type": "string"}
+          },
+          "technologies": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {"type": "string"}
+          },
+          "benefits": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"type": "string", "minLength": 3}
+          },
+          "liabilities": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"type": "string", "minLength": 3}
+          },
+          "assumptions": {
+            "type": "array",
+            "items": {"type": "string", "minLength": 1}
+          },
+          "quality_attribute_effects": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["attribute", "effect", "rationale"],
+              "properties": {
+                "attribute": {"type": "string", "minLength": 1},
+                "effect": {"enum": ["improves", "neutral", "degrades", "unknown"]},
+                "rationale": {"type": "string", "minLength": 3}
+              }
+            }
+          },
+          "implementation_complexity": {"enum": ["low", "medium", "high"]},
+          "operational_complexity": {"enum": ["low", "medium", "high"]},
+          "business_fit": {"type": "string", "minLength": 3},
+          "team_fit": {"type": "string", "minLength": 3},
+          "evolution_fit": {"type": "string", "minLength": 3},
+          "migration_risk": {"enum": ["low", "medium", "high", "critical"]},
+          "reversibility": {"enum": ["easy", "moderate", "difficult", "irreversible"]},
+          "cost": {"enum": ["low", "medium", "high", "unknown"]},
+          "technical_maturity": {
+            "enum": ["experimental", "emerging", "stable", "mature", "unknown"]
+          },
+          "lock_in": {"enum": ["none", "low", "medium", "high", "unknown"]},
+          "tradeoff_scores": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "business_fit",
+              "quality_fit",
+              "team_fit",
+              "implementation",
+              "operations",
+              "migration",
+              "reversibility",
+              "cost",
+              "maturity",
+              "lock_in",
+              "evolution"
+            ],
+            "properties": {
+              "business_fit": {"type": "integer", "minimum": -2, "maximum": 2},
+              "quality_fit": {"type": "integer", "minimum": -2, "maximum": 2},
+              "team_fit": {"type": "integer", "minimum": -2, "maximum": 2},
+              "implementation": {"type": "integer", "minimum": -2, "maximum": 2},
+              "operations": {"type": "integer", "minimum": -2, "maximum": 2},
+              "migration": {"type": "integer", "minimum": -2, "maximum": 2},
+              "reversibility": {"type": "integer", "minimum": -2, "maximum": 2},
+              "cost": {"type": "integer", "minimum": -2, "maximum": 2},
+              "maturity": {"type": "integer", "minimum": -2, "maximum": 2},
+              "lock_in": {"type": "integer", "minimum": -2, "maximum": 2},
+              "evolution": {"type": "integer", "minimum": -2, "maximum": 2}
+            }
+          },
+          "rejected_reasons": {
+            "type": "array",
+            "items": {"type": "string", "minLength": 3}
+          },
+          "constraint_assessments": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/$defs/constraintAssessment"
+            }
+          }
+        }
+      }
+    },
+    "selected_option": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 20
+    },
+    "revisit_triggers": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 3
+      }
+    },
+    "target_architecture": {
+      "$ref": "#/$defs/targetArchitecture"
+    },
+    "acceptance_evidence": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 3
+      }
+    },
+    "hard_eliminations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["option_id", "rule", "evidence"],
+        "properties": {
+          "option_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]*$"
+          },
+          "rule": {"type": "string", "minLength": 3},
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"type": "string", "minLength": 3}
+          }
+        }
+      }
+    },
+    "evolution_assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "disposition",
+        "baseline",
+        "gap",
+        "volatile_claims",
+        "compatibility",
+        "operations",
+        "lock_in_exit",
+        "rollback",
+        "pilot",
+        "revisit_triggers"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 4
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "disposition": {
+          "enum": ["keep-current", "evidence-only", "adopt"]
+        },
+        "baseline": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "owner",
+            "local_correction",
+            "do_nothing_consequence",
+            "measures"
+          ],
+          "properties": {
+            "owner": {"type": "string", "minLength": 3},
+            "local_correction": {"type": "string", "minLength": 8},
+            "do_nothing_consequence": {"type": "string", "minLength": 8},
+            "measures": {
+              "type": "array",
+              "minItems": 1,
+              "items": {"$ref": "#/$defs/measurement"}
+            }
+          }
+        },
+        "gap": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "scenario",
+            "current_value",
+            "target",
+            "measurement_method",
+            "threshold",
+            "evidence"
+          ],
+          "properties": {
+            "scenario": {"type": "string", "minLength": 8},
+            "current_value": {"type": "string", "minLength": 1},
+            "target": {"type": "string", "minLength": 1},
+            "measurement_method": {"type": "string", "minLength": 8},
+            "threshold": {"type": "string", "minLength": 3},
+            "evidence": {
+              "type": "array",
+              "minItems": 1,
+              "items": {"$ref": "#/$defs/fileEvidence"}
+            }
+          }
+        },
+        "volatile_claims": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "claim",
+              "publisher",
+              "url",
+              "scope",
+              "accessed_on",
+              "freshness",
+              "capture"
+            ],
+            "properties": {
+              "claim": {"type": "string", "minLength": 8},
+              "publisher": {"type": "string", "minLength": 3},
+              "url": {"type": "string", "format": "uri"},
+              "scope": {"type": "string", "minLength": 8},
+              "accessed_on": {"type": "string", "format": "date"},
+              "freshness": {"enum": ["current", "stale", "unknown"]},
+              "capture": {"$ref": "#/$defs/fileEvidence"}
+            }
+          }
+        },
+        "compatibility": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "consumers",
+            "contracts",
+            "mixed_version_behavior",
+            "migration_steps",
+            "duration",
+            "cost"
+          ],
+          "properties": {
+            "consumers": {
+              "type": "array",
+              "minItems": 1,
+              "items": {"type": "string", "minLength": 3}
+            },
+            "contracts": {
+              "type": "array",
+              "items": {"type": "string", "minLength": 3}
+            },
+            "mixed_version_behavior": {"type": "string", "minLength": 8},
+            "migration_steps": {
+              "type": "array",
+              "minItems": 1,
+              "items": {"type": "string", "minLength": 8}
+            },
+            "duration": {"type": "string", "minLength": 3},
+            "cost": {"type": "string", "minLength": 3}
+          }
+        },
+        "operations": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "owner",
+            "required_skills",
+            "support_model",
+            "observability",
+            "failure_semantics",
+            "security",
+            "operating_cost"
+          ],
+          "properties": {
+            "owner": {"type": "string", "minLength": 3},
+            "required_skills": {
+              "type": "array",
+              "minItems": 1,
+              "items": {"type": "string", "minLength": 3}
+            },
+            "support_model": {"type": "string", "minLength": 8},
+            "observability": {"type": "string", "minLength": 8},
+            "failure_semantics": {"type": "string", "minLength": 8},
+            "security": {"type": "string", "minLength": 8},
+            "operating_cost": {"type": "string", "minLength": 3}
+          }
+        },
+        "lock_in_exit": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "proprietary_surfaces",
+            "portability",
+            "exit_cost",
+            "data_recovery"
+          ],
+          "properties": {
+            "proprietary_surfaces": {
+              "type": "array",
+              "items": {"type": "string", "minLength": 3}
+            },
+            "portability": {"type": "string", "minLength": 8},
+            "exit_cost": {"type": "string", "minLength": 3},
+            "data_recovery": {"type": "string", "minLength": 8}
+          }
+        },
+        "rollback": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "rollback_point",
+            "irreversible_gate",
+            "validation",
+            "compatible_state"
+          ],
+          "properties": {
+            "rollback_point": {"type": "string", "minLength": 8},
+            "irreversible_gate": {"type": "string", "minLength": 8},
+            "validation": {"type": "string", "minLength": 8},
+            "compatible_state": {"type": "string", "minLength": 8}
+          }
+        },
+        "pilot": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "owner",
+            "cohort",
+            "success_criteria",
+            "stop_criteria",
+            "observed_measures"
+          ],
+          "properties": {
+            "status": {"enum": ["completed", "not-applicable", "not-run"]},
+            "owner": {"type": "string", "minLength": 3},
+            "cohort": {"type": "string", "minLength": 8},
+            "success_criteria": {
+              "type": "array",
+              "minItems": 1,
+              "items": {"type": "string", "minLength": 8}
+            },
+            "stop_criteria": {
+              "type": "array",
+              "minItems": 1,
+              "items": {"type": "string", "minLength": 8}
+            },
+            "observed_measures": {
+              "type": "array",
+              "items": {"$ref": "#/$defs/measurement"}
+            }
+          }
+        },
+        "revisit_triggers": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "metric_or_event",
+              "threshold",
+              "owner",
+              "review_on",
+              "reopening_evidence"
+            ],
+            "properties": {
+              "metric_or_event": {"type": "string", "minLength": 3},
+              "threshold": {"type": "string", "minLength": 3},
+              "owner": {"type": "string", "minLength": 3},
+              "review_on": {"type": "string", "format": "date"},
+              "reopening_evidence": {"type": "string", "minLength": 8}
+            }
+          }
+        }
+      }
+    },
+    "migration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["slices", "rollback", "validation"],
+      "properties": {
+        "affected_paths": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "slices": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        },
+        "rollback": {
+          "type": "string",
+          "minLength": 3
+        },
+        "validation": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "decision": {
+            "properties": {
+              "assessment_kind": {"const": "technology-evolution"}
+            },
+            "required": ["assessment_kind"]
+          }
+        },
+        "required": ["decision"]
+      },
+      "then": {
+        "required": ["evolution_assessment"]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "schema_version": {
+            "enum": ["1.1", "1.2"]
+          }
+        },
+        "required": ["schema_version"]
+      },
+      "then": {
+        "properties": {
+          "decision": {
+            "required": ["source_review", "source_review_sha256"]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "schema_version": {
+            "enum": ["1.2", "1.3", "1.4"]
+          }
+        },
+        "required": ["schema_version"]
+      },
+      "then": {
+        "required": ["migration"],
+        "properties": {
+          "decision": {
+            "required": [
+              "knowledge_selection_path",
+              "knowledge_selection_sha256"
+            ]
+          },
+          "problem": {
+            "required": ["known_facts", "unknowns"]
+          },
+          "knowledge_snapshot": {
+            "items": {
+              "required": ["id", "version", "sha256"]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "schema_version": {"const": "1.4"}
+        },
+        "required": ["schema_version"]
+      },
+      "then": {
+        "required": ["target_architecture"],
+        "properties": {
+          "decision": {
+            "required": [
+              "decision_kind",
+              "architecture_intent",
+              "source_context",
+              "source_context_sha256"
+            ],
+            "properties": {
+              "decision_kind": {"const": "greenfield"},
+              "architecture_intent": {"const": "target-architecture"}
+            }
+          },
+          "problem": {
+            "properties": {
+              "finding_ids": {"maxItems": 0}
+            }
+          },
+          "options": {
+            "items": {
+              "properties": {
+                "technologies": {
+                  "items": {
+                    "pattern": "^technology\\.[a-z0-9][a-z0-9._-]*$"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "schema_version": {"const": "1.4"},
+          "decision": {
+            "properties": {
+              "architecture_intent": {"const": "target-architecture"}
+            },
+            "required": ["architecture_intent"]
+          }
+        },
+        "required": ["schema_version", "decision"]
+      },
+      "then": {
+        "required": ["target_architecture"],
+        "properties": {
+          "options": {
+            "items": {
+              "required": ["constraint_assessments"]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "schema_version": {
+            "const": "1.3"
+          }
+        },
+        "required": ["schema_version"]
+      },
+      "then": {
+        "properties": {
+          "decision": {
+            "required": ["decision_kind"]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "schema_version": {"const": "1.3"},
+          "decision": {
+            "properties": {
+              "decision_kind": {"const": "remediation"}
+            },
+            "required": ["decision_kind"]
+          }
+        },
+        "required": ["schema_version", "decision"]
+      },
+      "then": {
+        "properties": {
+          "decision": {
+            "required": ["source_review", "source_review_sha256"]
+          },
+          "problem": {
+            "properties": {
+              "finding_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "schema_version": {"const": "1.3"},
+          "decision": {
+            "properties": {
+              "decision_kind": {"const": "greenfield"}
+            },
+            "required": ["decision_kind"]
+          }
+        },
+        "required": ["schema_version", "decision"]
+      },
+      "then": {
+        "properties": {
+          "decision": {
+            "required": ["source_context", "source_context_sha256"]
+          },
+          "problem": {
+            "properties": {
+              "finding_ids": {
+                "maxItems": 0
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

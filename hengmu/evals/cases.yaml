@@ -1,0 +1,324 @@
+schema_version: "1.0"
+cases:
+  - id: hengmu-direct
+    skill: hengmu
+    kind: direct
+    prompt: "Use $hengmu to audit this repository without making me remember the focused Skill name."
+    expected:
+      activates: true
+      outcome: "Routes the full request to project-architecture-audit and follows that focused workflow."
+  - id: hengmu-indirect
+    skill: hengmu
+    kind: indirect
+    prompt: "I only remember Hengmu; please compare the queue and durable-workflow options for this service."
+    expected:
+      activates: true
+      outcome: "Infers solution-decision intent and routes to architecture-solution-advisor without requiring a command name."
+  - id: hengmu-incomplete
+    skill: hengmu
+    kind: incomplete
+    prompt: "Open $hengmu, show the current governance lifecycle status, and tell me which focused workflow is valid next."
+    expected:
+      activates: true
+      outcome: "Shows the complete menu and read-only lifecycle guidance without starting work, changing authority, or creating project state."
+  - id: hengmu-negative
+    skill: hengmu
+    kind: negative
+    prompt: "Use $project-architecture-audit directly to review this repository's module boundaries."
+    expected:
+      activates: false
+      outcome: "Respects the explicitly invoked focused Skill instead of interposing the Hengmu router."
+  - id: hengmu-edge
+    skill: hengmu
+    kind: edge
+    prompt: "Use $hengmu to plan implementation from this candidate review before anyone verifies its findings."
+    expected:
+      activates: true
+      outcome: "Routes to remediation planning while preserving its requirement for verified findings and an accepted decision."
+  - id: project-direct
+    skill: project-architecture-audit
+    kind: direct
+    prompt: "Audit this repository's architecture and cite code evidence."
+    expected:
+      activates: true
+      outcome: "Initializes missing project governance and persists evidence-backed candidates for independent verification."
+  - id: project-indirect
+    skill: project-architecture-audit
+    kind: indirect
+    prompt: "Map who owns data and module boundaries before we refactor this service."
+    expected:
+      activates: true
+      outcome: "Recognizes an architecture-diagnosis request without prescribing fixes."
+  - id: project-incomplete
+    skill: project-architecture-audit
+    kind: incomplete
+    prompt: "Review the architecture, but this checkout has no profile or design docs."
+    expected:
+      activates: true
+      outcome: "Creates a facts-derived project control plane, then records missing declared evidence without inventing it."
+  - id: project-negative
+    skill: project-architecture-audit
+    kind: negative
+    prompt: "Rename this local variable and format the edited Python file."
+    expected:
+      activates: false
+      outcome: "Leaves a mechanical code edit to a coding workflow."
+  - id: project-edge
+    skill: project-architecture-audit
+    kind: edge
+    prompt: "A 2,000-line file uses SQLite; prove whether either choice violates a real invariant."
+    expected:
+      activates: true
+      outcome: "Rejects size and technology heuristics unless a failure path is proven."
+
+  - id: verifier-direct
+    skill: architecture-finding-verifier
+    kind: direct
+    prompt: "Verify every candidate in the latest architecture review."
+    expected:
+      activates: true
+      outcome: "Confirms, rejects, or marks every candidate as needing evidence."
+  - id: verifier-indirect
+    skill: architecture-finding-verifier
+    kind: indirect
+    prompt: "Check whether the claimed data ownership conflict is a false positive."
+    expected:
+      activates: true
+      outcome: "Tests the finding and its strongest counter-hypothesis."
+  - id: verifier-incomplete
+    skill: architecture-finding-verifier
+    kind: incomplete
+    prompt: "Validate this finding, but its cited commit is no longer available."
+    expected:
+      activates: true
+      outcome: "Relocates current evidence or records a needs-evidence decision."
+  - id: verifier-negative
+    skill: architecture-finding-verifier
+    kind: negative
+    prompt: "Implement the proposed repository-layer refactor."
+    expected:
+      activates: false
+      outcome: "Does not turn finding verification into implementation."
+  - id: verifier-edge
+    skill: architecture-finding-verifier
+    kind: edge
+    prompt: "Three reviewers agree this singleton is wrong; independently verify the claim."
+    expected:
+      activates: true
+      outcome: "Treats agreement and singleton use as leads rather than proof."
+
+  - id: remediation-direct
+    skill: architecture-remediation-planner
+    kind: direct
+    prompt: "Create a remediation plan from this accepted architecture decision and its confirmed architecture findings."
+    expected:
+      activates: true
+      outcome: "Produces options, sequencing, protection, rollback, and acceptance criteria."
+  - id: remediation-indirect
+    skill: architecture-remediation-planner
+    kind: indirect
+    prompt: "Turn the accepted decision for these verified ownership risks into a safe migration roadmap."
+    expected:
+      activates: true
+      outcome: "Groups findings by invariant and orders reversible migration slices."
+  - id: remediation-incomplete
+    skill: architecture-remediation-planner
+    kind: incomplete
+    prompt: "Plan a fix for these verified findings, but no architecture decision has been accepted."
+    expected:
+      activates: true
+      outcome: "Stops before planning and requests an accepted architecture decision."
+  - id: remediation-negative
+    skill: architecture-remediation-planner
+    kind: negative
+    prompt: "Audit this repository and discover new architecture risks."
+    expected:
+      activates: false
+      outcome: "Leaves discovery to an architecture audit."
+  - id: remediation-edge
+    skill: architecture-remediation-planner
+    kind: edge
+    prompt: "Turn this accepted constrained Greenfield target into an implementation roadmap; it has no Review or Findings."
+    expected:
+      activates: true
+      outcome: "Uses Greenfield Plan 1.3, binds the Brief and accepted Decision, and creates no synthetic Findings."
+
+  - id: ai-agent-direct
+    skill: ai-agent-architecture-audit
+    kind: direct
+    prompt: "Audit this agent runtime's context assembly, compression and cache ordering, memory, tools, privacy, recovery, and evaluations."
+    expected:
+      activates: true
+      outcome: "Traces context necessity and ordering, authority-preserving compression, privacy, tools, recovery, and version-bound behavior evidence before producing candidates."
+  - id: ai-agent-indirect
+    skill: ai-agent-architecture-audit
+    kind: indirect
+    prompt: "Trace whether retrieved text can trigger an unapproved MCP side effect."
+    expected:
+      activates: true
+      outcome: "Maps untrusted content through policy and tool boundaries."
+  - id: ai-agent-incomplete
+    skill: ai-agent-architecture-audit
+    kind: incomplete
+    prompt: "Review whether a new agent protocol and model upgrade are worthwhile, but no version-bound behavior traces or pilot results are available."
+    expected:
+      activates: true
+      outcome: "Assesses compatibility and static evidence, keeps the current design as a baseline, and records upgrade value as unproved without behavior evidence."
+  - id: ai-agent-negative
+    skill: ai-agent-architecture-audit
+    kind: negative
+    prompt: "Rewrite this marketing paragraph with a warmer tone."
+    expected:
+      activates: false
+      outcome: "Does not activate for ordinary content generation."
+  - id: ai-agent-edge
+    skill: ai-agent-architecture-audit
+    kind: edge
+    prompt: "A prompt contains user text; determine if that alone proves prompt injection."
+    expected:
+      activates: true
+      outcome: "Requires evidence that untrusted text crosses a protected boundary."
+
+  - id: mobile-direct
+    skill: mobile-architecture-audit
+    kind: direct
+    prompt: "Audit this iOS app's local store, synchronization, notifications, and migrations."
+    expected:
+      activates: true
+      outcome: "Produces lifecycle-aware mobile candidates for independent verification."
+  - id: mobile-indirect
+    skill: mobile-architecture-audit
+    kind: indirect
+    prompt: "Trace what happens to edits when the app is killed offline and later reconnects."
+    expected:
+      activates: true
+      outcome: "Examines state ownership, persistence, conflicts, and recovery."
+  - id: mobile-incomplete
+    skill: mobile-architecture-audit
+    kind: incomplete
+    prompt: "Review notification reliability without a simulator or device logs."
+    expected:
+      activates: true
+      outcome: "Uses available evidence and marks runtime behavior unassessed."
+  - id: mobile-negative
+    skill: mobile-architecture-audit
+    kind: negative
+    prompt: "Make this SwiftUI button blue and increase its corner radius."
+    expected:
+      activates: false
+      outcome: "Leaves a visual change to a UI implementation workflow."
+  - id: mobile-edge
+    skill: mobile-architecture-audit
+    kind: edge
+    prompt: "The app is local-first and uses SwiftData; verify whether that is actually risky."
+    expected:
+      activates: true
+      outcome: "Does not flag local-first persistence without a violated invariant."
+
+  - id: portfolio-direct
+    skill: portfolio-architecture-audit
+    kind: direct
+    prompt: "Audit the registered project portfolio for duplication, stack sprawl, and coupling."
+    expected:
+      activates: true
+      outcome: "Produces cross-project candidates from an explicit portfolio scope."
+  - id: portfolio-indirect
+    skill: portfolio-architecture-audit
+    kind: indirect
+    prompt: "Which authentication, scheduling, AI gateway, and telemetry capabilities are duplicated?"
+    expected:
+      activates: true
+      outcome: "Builds a cross-project capability and ownership inventory."
+  - id: portfolio-incomplete
+    skill: portfolio-architecture-audit
+    kind: incomplete
+    prompt: "Review all my projects, but there is no portfolio registry."
+    expected:
+      activates: true
+      outcome: "Stops and requests explicit portfolio initialization or scope."
+  - id: portfolio-negative
+    skill: portfolio-architecture-audit
+    kind: negative
+    prompt: "Review the module boundaries inside this one repository."
+    expected:
+      activates: false
+      outcome: "Routes a single-repository review to the project audit."
+  - id: portfolio-edge
+    skill: portfolio-architecture-audit
+    kind: edge
+    prompt: "Two projects both use Redis; prove whether consolidation would reduce risk."
+    expected:
+      activates: true
+      outcome: "Compares semantics and lifecycle instead of matching technology names."
+
+  - id: gate-direct
+    skill: architecture-quality-gate
+    kind: direct
+    prompt: "Run the architecture quality gate on the latest verified review."
+    expected:
+      activates: true
+      outcome: "Applies repository policy deterministically and preserves exit codes."
+  - id: gate-indirect
+    skill: architecture-quality-gate
+    kind: indirect
+    prompt: "Tell CI whether confirmed high-severity findings should block this commit."
+    expected:
+      activates: true
+      outcome: "Evaluates verified findings, freshness, baseline, and waivers."
+  - id: gate-incomplete
+    skill: architecture-quality-gate
+    kind: incomplete
+    prompt: "Run the gate, but only a candidate review exists."
+    expected:
+      activates: true
+      outcome: "Rejects invalid input instead of gating raw model findings."
+  - id: gate-negative
+    skill: architecture-quality-gate
+    kind: negative
+    prompt: "Decide whether this unreviewed architecture idea is good."
+    expected:
+      activates: false
+      outcome: "Does not replace architecture diagnosis with policy execution."
+  - id: gate-edge
+    skill: architecture-quality-gate
+    kind: edge
+    prompt: "Make the gate pass by adding a permanent waiver without an owner."
+    expected:
+      activates: true
+      outcome: "Refuses to mutate policy or create an invalid waiver."
+
+  - id: solution-direct
+    skill: architecture-solution-advisor
+    kind: direct
+    prompt: "Design a target architecture for these confirmed findings, compare the open options, and create a decision with runtime/deployment units, data ownership, interfaces, trust boundaries, critical flows, operations, and Knowledge."
+    expected:
+      activates: true
+      outcome: "Compares keep-current and viable alternatives against qualities and constraints, then records a target architecture and bound Knowledge."
+  - id: solution-indirect
+    skill: architecture-solution-advisor
+    kind: indirect
+    prompt: "A new workflow runtime release is available; should this queue worker keep its current design, upgrade, or move to that runtime?"
+    expected:
+      activates: true
+      outcome: "Uses current official capability evidence, workflow duration, recovery, compatibility, team, cost, pilot, rollback, and complexity evidence."
+  - id: solution-incomplete
+    skill: architecture-solution-advisor
+    kind: incomplete
+    prompt: "Choose our target architecture, but no findings, quality targets, or constraints exist."
+    expected:
+      activates: true
+      outcome: "Stops before design selection and requests an approved Brief, measurable scenarios, and authoritative constraints rather than inventing them."
+  - id: solution-negative
+    skill: architecture-solution-advisor
+    kind: negative
+    prompt: "Implement the already accepted modular-monolith migration plan in this repository."
+    expected:
+      activates: false
+      outcome: "Leaves implementation to an authorized engineering change workflow."
+  - id: solution-edge
+    skill: architecture-solution-advisor
+    kind: edge
+    prompt: "请约束新系统的方案：必须兼容现有接口，最好使用新版本框架，禁止跨服务共享数据库；不要凭记忆填写版本号。"
+    expected:
+      activates: true
+      outcome: "Routes Chinese design/constraint intent to architecture-solution-advisor, challenges the required constraint, lets the preference lose, eliminates the prohibited option, and requires current evidence for any version claim."

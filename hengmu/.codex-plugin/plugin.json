@@ -1,0 +1,41 @@
+{
+  "name": "hengmu",
+  "version": "1.2.1",
+  "description": "Evidence-bound current-state assessment, open or constrained target-architecture design, decisions, planning, and deterministic governance for Codex.",
+  "author": {
+    "name": "Qingye Open Source",
+    "url": "https://github.com/qingye-lab"
+  },
+  "homepage": "https://qingye-lab.github.io/hengmu/",
+  "repository": "https://github.com/qingye-lab/hengmu",
+  "license": "MIT",
+  "keywords": [
+    "architecture",
+    "architecture-design",
+    "target-architecture",
+    "audit",
+    "governance",
+    "quality-gate",
+    "architecture-decision",
+    "technology-selection",
+    "codex-skills"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Hengmu",
+    "shortDescription": "Evidence-bound architecture design and governance",
+    "longDescription": "Assess repositories and portfolios, design open or constrained target architectures, compare architecture and technology options, verify evidence and provenance, record decisions, plan remediation or Greenfield implementation, and enforce trusted artifacts with layered deterministic policy. Hengmu proposes artifacts; it does not accept decisions, implement application code, or run gates implicitly. Local helpers require Python 3.11–3.14 with PyYAML and jsonschema.",
+    "developerName": "Qingye",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://qingye-lab.github.io/hengmu/",
+    "defaultPrompt": [
+      "Use $hengmu to show the available engineering workflows for this repository.",
+      "Use $hengmu to audit this repository and verify every architecture finding.",
+      "Use $hengmu to design an open or constrained target from an approved Brief and record a proposed decision."
+    ]
+  }
+}

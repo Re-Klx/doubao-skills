@@ -1,0 +1,479 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.architecture/schemas/review.schema.json",
+  "title": "Architecture review bundle",
+  "$defs": {
+    "coverageEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "commit", "blob_sha", "observation"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "commit": {"type": "string", "pattern": "^[a-fA-F0-9]{7,64}$"},
+        "blob_sha": {"type": "string", "pattern": "^[a-fA-F0-9]{40,64}$"},
+        "line_start": {"type": "integer", "minimum": 1},
+        "line_end": {"type": "integer", "minimum": 1},
+        "observation": {"type": "string", "minLength": 3}
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "review",
+    "summary",
+    "coverage",
+    "findings",
+    "evidence_sources",
+    "limitations"
+  ],
+  "properties": {
+    "schema_version": {
+      "enum": ["1.0", "1.1", "1.2"]
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "subject",
+        "performed_at",
+        "scope",
+        "verification_state",
+        "reviewers"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$"
+        },
+        "kind": {
+          "enum": ["project", "ai-agent", "mobile", "portfolio"]
+        },
+        "workflow": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "subject": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "name"],
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "repository": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "performed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "commit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "commits": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "scope": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "verification_state": {
+          "enum": ["candidates", "verified"]
+        },
+        "reviewers": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "profile": {
+          "type": "string"
+        },
+        "repository_identity": {
+          "type": "string",
+          "minLength": 1
+        },
+        "profile_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "dirty_tree": {
+          "type": "boolean"
+        },
+        "rule_packs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "version", "sha256"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9-]*$"
+              },
+              "version": {
+                "type": "string",
+                "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          }
+        },
+        "scope_manifest": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "verification_run": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "surface", "started_at", "completed_at"],
+          "properties": {
+            "id": {"type": "string", "minLength": 1},
+            "model": {"type": "string"},
+            "surface": {"type": "string", "minLength": 1},
+            "started_at": {"type": "string", "format": "date-time"},
+            "completed_at": {"type": "string", "format": "date-time"}
+          }
+        },
+        "source_candidate": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path", "review_id", "sha256"],
+          "properties": {
+            "path": {"type": "string", "minLength": 1},
+            "review_id": {"type": "string", "minLength": 1},
+            "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+            "commit": {"type": "string", "minLength": 1},
+            "commits": {
+              "type": "object",
+              "minProperties": 1,
+              "additionalProperties": {"type": "string", "minLength": 1}
+            }
+          }
+        },
+        "signature": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["format", "identity", "namespace", "path"],
+          "properties": {
+            "format": {"const": "ssh"},
+            "identity": {"type": "string", "minLength": 1},
+            "namespace": {"type": "string", "minLength": 1},
+            "path": {"type": "string", "minLength": 1}
+          }
+        }
+      },
+      "anyOf": [
+        {
+          "required": ["commit"]
+        },
+        {
+          "required": ["commits"]
+        }
+      ]
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "architecture",
+        "raw_findings",
+        "confirmed",
+        "rejected",
+        "needs_evidence"
+      ],
+      "properties": {
+        "architecture": {
+          "type": "string",
+          "minLength": 1
+        },
+        "raw_findings": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "confirmed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rejected": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "needs_evidence": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "coverage": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["rule_id", "status", "finding_ids"],
+        "properties": {
+          "rule_id": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9.]{2,79}$"
+          },
+          "status": {
+            "enum": ["assessed", "not_applicable", "not_assessed"]
+          },
+          "finding_ids": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9._-]{2,63}$"
+            }
+          },
+          "reason": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {"$ref": "#/$defs/coverageEvidence"}
+          }
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "type": "object"
+      }
+    },
+    "evidence_sources": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "coverage_complete": {
+      "type": "boolean"
+    },
+    "tool_evidence": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["provider_id", "run_path", "run_sha256"],
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]*$"
+          },
+          "run_path": {"type": "string", "minLength": 1},
+          "run_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      }
+    },
+    "repository_facts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "knowledge_selection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      }
+    },
+    "selected_knowledge": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "version", "sha256"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 3
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        }
+      }
+    },
+    "critical_flow_coverage": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "status"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]*$"
+          },
+          "status": {
+            "enum": ["assessed", "not_applicable", "not_assessed"]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 3
+          },
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {"$ref": "#/$defs/coverageEvidence"}
+          }
+        }
+      }
+    },
+    "unknowns": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 3
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "schema_version": {"enum": ["1.1", "1.2"]}
+        }
+      },
+      "then": {
+        "required": ["coverage_complete"],
+        "properties": {
+          "review": {
+            "required": [
+              "repository_identity",
+              "workflow",
+              "profile_sha256",
+              "dirty_tree",
+              "rule_packs",
+              "scope_manifest"
+            ]
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "review": {
+                  "properties": {
+                    "verification_state": {"const": "verified"}
+                  }
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "review": {
+                  "required": [
+                    "verification_run",
+                    "source_candidate"
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "schema_version": {"const": "1.2"}
+        }
+      },
+      "then": {
+        "required": [
+          "repository_facts",
+          "knowledge_selection",
+          "selected_knowledge",
+          "critical_flow_coverage",
+          "unknowns"
+        ]
+      }
+    }
+  ]
+}

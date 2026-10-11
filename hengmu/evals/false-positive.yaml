@@ -1,0 +1,42 @@
+schema_version: "1.0"
+cases:
+  - id: large-file
+    lead: A source file has 2,000 lines.
+    required_proof: Trace a violated invariant and affected flow.
+    forbidden_conclusion: File size is an architecture defect.
+  - id: sqlite
+    lead: The project uses SQLite.
+    required_proof: Trace writer concurrency, authority, durability, and scale requirements.
+    forbidden_conclusion: SQLite is inherently unsuitable.
+  - id: singleton
+    lead: A service is exposed through a singleton.
+    required_proof: Trace lifecycle, shared-state, concurrency, and test isolation failure.
+    forbidden_conclusion: Singleton syntax proves harmful global state.
+  - id: queue-worker
+    lead: Long work uses a queue and database status.
+    required_proof: Show timers, signals, approval, compensation, or recovery needs it cannot meet.
+    forbidden_conclusion: Every long task requires a workflow engine.
+  - id: server-cache-mobile
+    lead: A mobile client caches server data locally.
+    required_proof: Show durable offline writes and reconciliation requirements.
+    forbidden_conclusion: A local cache makes the application local-first.
+  - id: single-agent
+    lead: One agent invokes multiple typed tools.
+    required_proof: Show distinct context or authority boundaries with measured benefit.
+    forbidden_conclusion: Tool count requires a multi-agent system.
+  - id: large-agent-context
+    lead: An agent request carries a large context payload.
+    required_proof: Trace unnecessary or stale inputs, displaced evidence, context overflow, cache-key churn, latency, cost, or a compression loss on a declared critical capability.
+    forbidden_conclusion: Context size alone is an architecture defect.
+  - id: missing-quality-tool
+    lead: A detected language has no configured or executable quality provider.
+    required_proof: Show which declared invariant or release evidence remains unassessed and obtain explicit authority before changing project dependencies or the host toolchain.
+    forbidden_conclusion: Hengmu may install or enable the missing tool automatically.
+  - id: newer-agent-runtime
+    lead: A newer model, agent framework, or interoperability protocol is available.
+    required_proof: Compare keep-current, upgrade, and replacement options against current official capabilities, version-bound behavior evidence, compatibility, migration, operations, cost, rollback, and an affected critical flow.
+    forbidden_conclusion: A newer technology or protocol is inherently a better architecture.
+  - id: quality-provider-pass
+    lead: A configured linter or static-analysis provider exits successfully.
+    required_proof: Bind valid provider output to the exact project invariant, scope, configuration, executable, and reviewed commit.
+    forbidden_conclusion: A passing generic quality tool proves the architecture is sound.

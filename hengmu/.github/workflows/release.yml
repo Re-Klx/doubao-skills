@@ -1,0 +1,164 @@
+name: Release
+
+on:
+  workflow_call:
+
+permissions:
+  attestations: write
+  contents: write
+  id-token: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Release tests verify benchmark evidence against its archived commit.
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.14"
+          cache: pip
+
+      - name: Install locked development dependencies
+        run: >-
+          python -m pip install --require-hashes
+          --requirement requirements-dev.lock
+
+      - name: Verify tag matches plugin version
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          manifest = json.loads(
+              Path(".codex-plugin/plugin.json").read_text(encoding="utf-8")
+          )
+          expected = f"v{manifest['version']}"
+          actual = os.environ["RELEASE_TAG"]
+          if actual != expected:
+              raise SystemExit(f"tag {actual!r} does not match {expected!r}")
+          PY
+
+      - name: Validate repository contracts
+        run: python scripts/validate_repository.py
+
+      - name: Validate dogfood architecture profile
+        run: python resources/scripts/architecture_tool.py validate-project .
+
+      - name: Validate governance history anchors
+        run: python resources/scripts/architecture_tool.py validate-history-anchors .
+
+      - name: Validate architecture knowledge
+        run: python resources/scripts/validate_knowledge.py
+
+      - name: Run tests with branch coverage
+        run: >-
+          python -m pytest
+          --cov
+          --cov-branch
+          --cov-report=term-missing:skip-covered
+          --cov-report=xml
+
+      - name: Enforce runtime branch coverage
+        run: >-
+          python -m coverage report
+          --include="resources/scripts/*"
+          --fail-under=68.0
+
+      - name: Run strict type checking
+        run: python -m mypy resources/scripts scripts
+
+      - name: Run layered architecture release gate
+        run: >-
+          python resources/scripts/architecture_tool.py gate
+          --project .
+          --stage release
+
+      - name: Lint
+        run: python -m ruff check .
+
+      - name: Check formatting
+        run: python -m ruff format --check .
+
+      - name: Audit runtime dependencies
+        run: python -m pip_audit --requirement requirements-runtime.lock
+
+      - name: Audit runtime dependency licenses
+        run: python scripts/audit_licenses.py
+
+      - name: Build deterministic Codex plugin archive
+        run: python scripts/package_plugin.py --format codex --output-dir dist
+
+      - name: Build deterministic Agent Plugins archive
+        run: >-
+          python scripts/package_plugin.py
+          --format agent-plugins
+          --output-dir dist
+
+      - name: Smoke test Codex archive
+        run: >-
+          python scripts/smoke_test_package.py
+          --format codex
+          --archive "dist/hengmu-*.zip"
+
+      - name: Smoke test Agent Plugins archive
+        run: >-
+          python scripts/smoke_test_package.py
+          --format agent-plugins
+          --archive "dist/hengmu-*-agent-plugins.zip"
+
+      - name: Verify archive checksum
+        run: python scripts/verify_checksum.py dist/*.zip.sha256
+
+      - name: Define release artifact paths
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          {
+            echo "CODEX_ARCHIVE=dist/hengmu-${VERSION}.zip"
+            echo "AGENT_PLUGINS_ARCHIVE=dist/hengmu-${VERSION}-agent-plugins.zip"
+            echo "CODEX_SBOM_PATH=dist/hengmu-${VERSION}.spdx.json"
+            echo "AGENT_PLUGINS_SBOM_PATH=dist/hengmu-${VERSION}-agent-plugins.spdx.json"
+          } >> "${GITHUB_ENV}"
+
+      - name: Generate SPDX SBOM
+        run: >-
+          python scripts/generate_sbom.py
+          --archive dist/*.zip
+          --output-dir dist
+
+      - name: Attest build provenance
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-path: dist/*.zip
+
+      - name: Attest Codex SPDX SBOM
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-path: ${{ env.CODEX_ARCHIVE }}
+          sbom-path: ${{ env.CODEX_SBOM_PATH }}
+
+      - name: Attest Agent Plugins SPDX SBOM
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-path: ${{ env.AGENT_PLUGINS_ARCHIVE }}
+          sbom-path: ${{ env.AGENT_PLUGINS_SBOM_PATH }}
+
+      - name: Prepare exact GitHub release draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          python scripts/publish_release.py
+          prepare
+          --repository "${GITHUB_REPOSITORY}"
+          --tag "${GITHUB_REF_NAME}"
+          --dist dist

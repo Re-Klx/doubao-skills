@@ -1,0 +1,34 @@
+flowchart LR
+    subgraph context["项目上下文"]
+        facts["仓库事实<br/>+ 项目画像"]
+        brief["已批准<br/>Brief"]
+        knowledge["约束 + 已选择的<br/>Knowledge"]
+    end
+
+    facts --> audit["候选<br/>现状审查"]
+    knowledge --> audit
+    audit -->|"候选问题"| verify["独立<br/>核实"]
+    verify --> review["可信 Review<br/>绑定来源"]
+
+    facts --> target["目标架构<br/>+ 拟议 Decision"]
+    brief -->|"开放式 / 受约束"| target
+    knowledge --> target
+    review --> target
+    target -->|"具名授权"| accepted["已接受<br/>Decision"]
+    accepted --> plan["实施<br/>Plan"]
+    plan --> gate["确定性<br/>质量门禁"]
+    review -.->|"问题策略"| gate
+    gate --> outcome["变更 / 发布<br/>决策"]
+
+    classDef contextNode fill:#F4F2EC,stroke:#6D7078,color:#161719,stroke-width:1.5px;
+    classDef reviewNode fill:#FFFFFF,stroke:#173FBE,color:#161719,stroke-width:2px;
+    classDef actionNode fill:#173FBE,stroke:#173FBE,color:#FFFFFF,stroke-width:2px;
+    classDef outcomeNode fill:#161719,stroke:#161719,color:#FFFFFF,stroke-width:2px;
+
+    class facts,brief,knowledge contextNode;
+    class audit,verify,review reviewNode;
+    class target,accepted,plan,gate actionNode;
+    class outcome outcomeNode;
+
+    style context fill:#FFFFFF,stroke:#D9D9D2,stroke-width:1px
+    linkStyle default stroke:#6D7078,stroke-width:1.5px

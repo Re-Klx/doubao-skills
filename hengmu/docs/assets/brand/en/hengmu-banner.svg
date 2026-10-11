@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2172" height="724" viewBox="0 0 2172 724" role="img" aria-labelledby="title desc">
+  <title id="title">Hengmu project banner</title>
+  <desc id="desc">Hengmu evidence-bound architecture design and decisions, presented with the official 青野 wordmark.</desc>
+  <rect width="2172" height="724" fill="#F4F2EC"/>
+
+  <image href="../../../../assets/hengmu-cola-cover/source/illustration-layer.png" x="500" y="0" width="1287" height="724" preserveAspectRatio="none"/>
+  <path d="M1554 351 1689 0H2172V145Z" fill="#173FBE"/>
+
+  <image href="../qingye-wordmark-blue.png" x="154" y="56" width="158" height="71" preserveAspectRatio="xMinYMid meet"/>
+
+  <text x="600" y="430" text-anchor="middle" fill="#161719" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="154" font-weight="600" letter-spacing="7">HENGMU</text>
+  <text x="600" y="498" text-anchor="middle" fill="#6D7078" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="25" font-weight="400" letter-spacing="5">EVIDENCE-BOUND ARCHITECTURE DECISIONS</text>
+
+</svg>
